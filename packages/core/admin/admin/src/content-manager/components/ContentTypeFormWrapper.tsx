@@ -169,7 +169,7 @@ const ContentTypeFormWrapper = ({
         return;
       }
 
-      dispatch(getData());
+      await dispatch(getData());
 
       try {
         const { data } = await fetchClient.get(requestURL, { cancelToken: source.token });
@@ -205,7 +205,10 @@ const ContentTypeFormWrapper = ({
 
     // This is needed in order to reset the form when the query changes
     const init = async () => {
-      dispatch(getData());
+      /**
+       * TODO: I think there's abuse in the i18n pacakge of redux middleware being asynchronous when it shouldn't be.
+       */
+      await dispatch(getData());
       dispatch(initForm(rawQuery));
     };
 
