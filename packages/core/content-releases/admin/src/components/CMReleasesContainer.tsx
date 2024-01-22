@@ -155,9 +155,9 @@ const AddActionToReleaseModal = ({
   };
 
   return (
-    <ModalLayout onClose={handleClose} labelledBy="title">
+    <ModalLayout onClose={handleClose} labelledBy="release-dialog-header">
       <ModalHeader>
-        <Typography id="title" fontWeight="bold" textColor="neutral800">
+        <Typography id="release-dialog-header" fontWeight="bold" textColor="neutral800">
           {formatMessage({
             id: 'content-releases.content-manager-edit-view.add-to-release',
             defaultMessage: 'Add to release',
