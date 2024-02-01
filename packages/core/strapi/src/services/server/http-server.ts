@@ -1,4 +1,6 @@
 import http from 'http';
+import https from 'https';
+
 import type { Socket } from 'net';
 import Koa from 'koa';
 import type { Strapi } from '@strapi/types';
@@ -20,9 +22,16 @@ const createHTTPServer = (strapi: Strapi, koaApp: Koa): Server => {
     return handler(req, res);
   };
 
-  const options = strapi.config.get<http.ServerOptions>('server.http.serverOptions', {});
-
-  const server: http.Server = http.createServer(options, listener);
+  let server: http.Server | https.Server;
+  if (strapi.config.get<http.ServerOptions>('server.https.serverOptions')) {
+    const options = strapi.config.get<https.ServerOptions>('server.https.serverOptions', {});
+    console.log(`using https server`);
+    server = https.createServer(options, listener);
+  } else {
+    const options = strapi.config.get<http.ServerOptions>('server.http.serverOptions', {});
+    console.log(`using http server`);
+    server = http.createServer(options, listener);
+  }
 
   server.on('connection', (connection) => {
     connections.add(connection);
