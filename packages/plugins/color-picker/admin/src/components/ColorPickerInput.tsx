@@ -113,7 +113,7 @@ export const ColorPickerInput = React.forwardRef<HTMLButtonElement, ColorPickerI
     const [showColorPicker, setShowColorPicker] = React.useState(false);
     const colorPickerButtonRef = React.useRef<HTMLButtonElement>(null!);
     const { formatMessage } = useIntl();
-    const color = value || '#000000';
+    const color = value || 'transparent';
 
     const handleBlur: React.FocusEventHandler<HTMLDivElement> = (e) => {
       e.preventDefault();
@@ -152,7 +152,6 @@ export const ColorPickerInput = React.forwardRef<HTMLButtonElement, ColorPickerI
             <Flex>
               <ColorPreview color={color} />
               <Typography
-                style={{ textTransform: 'uppercase' }}
                 textColor={value ? undefined : 'neutral600'}
                 variant="omega"
               >
@@ -180,7 +179,7 @@ export const ColorPickerInput = React.forwardRef<HTMLButtonElement, ColorPickerI
                     <Typography variant="omega" as="label" textColor="neutral600">
                       {formatMessage({
                         id: getTrad('color-picker.input.format'),
-                        defaultMessage: 'HEX',
+                        defaultMessage: 'HEX/Style',
                       })}
                     </Typography>
                   </Box>
@@ -190,7 +189,6 @@ export const ColorPickerInput = React.forwardRef<HTMLButtonElement, ColorPickerI
                       id: getTrad('color-picker.input.aria-label'),
                       defaultMessage: 'Color picker input',
                     })}
-                    style={{ textTransform: 'uppercase' }}
                     value={value}
                     placeholder="#000000"
                     onChange={onChange}

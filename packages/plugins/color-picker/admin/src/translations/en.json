@@ -1,7 +1,7 @@
 {
   "color-picker.description": "Select any color",
   "color-picker.input.aria-label": "Color picker input",
-  "color-picker.input.format": "HEX",
+  "color-picker.input.format": "HEX/Style",
   "color-picker.label": "Color",
   "color-picker.options.advanced.regex": "RegExp pattern",
   "color-picker.options.advanced.regex.description": "Provide a regular expression to validate the HEX value",
