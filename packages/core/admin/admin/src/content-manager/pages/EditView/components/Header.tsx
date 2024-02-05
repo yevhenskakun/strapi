@@ -221,19 +221,24 @@ const Header = ({ allowedActions: { canUpdate, canCreate, canPublish } }: Header
         <DialogBody icon={<ExclamationMarkCircle />}>
           <Flex direction="column" alignItems="stretch" gap={2}>
             <Typography textAlign="center" id="confirm-description">
-              {draftCount}
-              {/* @ts-expect-error – this is an issue with rendering a component with the formatMessage helper, perhaps a mis-match in types? */}
-              {formatMessage(
-                {
-                  id: getTranslation(`popUpwarning.warning.has-draft-relations.message`),
-                  defaultMessage:
-                    '<b>{count, plural, one { relation is} other { relations are}}</b> not published yet and might lead to unexpected behavior.',
-                },
-                {
-                  b: (chunks) => <Typography fontWeight="bold">{chunks}</Typography>,
-                  count: draftCount,
-                }
-              )}
+              {draftCount === -1 ?
+                <>
+                  If you use an article from <Typography fontWeight="bold">"nzz.ch"</Typography>, please add a canonical link to it in <Typography fontWeight="bold">"SEO" → "Canonical URL"</Typography>
+                </> : <>
+                  {draftCount}
+                  {/* @ts-expect-error – this is an issue with rendering a component with the formatMessage helper, perhaps a mis-match in types? */}
+                  {formatMessage(
+                    {
+                      id: getTranslation(`popUpwarning.warning.has-draft-relations.message`),
+                      defaultMessage:
+                        '<b>{count, plural, one { relation is} other { relations are}}</b> not published yet and might lead to unexpected behavior.',
+                    },
+                    {
+                      b: (chunks) => <Typography fontWeight="bold">{chunks}</Typography>,
+                      count: draftCount,
+                    }
+                  )}
+                </>}
             </Typography>
             <Typography textAlign="center" id="confirm-description">
               {formatMessage({

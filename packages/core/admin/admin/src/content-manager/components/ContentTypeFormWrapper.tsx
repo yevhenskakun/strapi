@@ -416,6 +416,7 @@ const ContentTypeFormWrapper = ({
 
       trackUsage('didPublishEntry');
 
+      location.reload();
       dispatch(submitSucceeded(cleanReceivedData(data)));
       dispatch(setStatus('resolved'));
 
@@ -515,6 +516,8 @@ const ContentTypeFormWrapper = ({
       );
 
       trackUsage('didUnpublishEntry');
+      location.reload();
+
       toggleNotification({
         type: 'success',
         message: { id: getTranslation('success.record.unpublish') },

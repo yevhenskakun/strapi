@@ -541,6 +541,27 @@ const EditViewDataManagerProvider = ({
       }
     }
 
+    if (allLayoutData?.contentType?.uid === 'api::article.article' && !modifiedData?.seo?.canonicalURL) {
+      const hasNZZ = true; // JSON.stringify(modifiedData.content).toLowerCase().includes('nzz.ch');
+
+      if (publishConfirmation.draftCount !== -1 && hasNZZ) {
+        // show nzz alert
+        dispatch({
+          type: 'SET_PUBLISH_CONFIRMATION',
+          publishConfirmation: {
+            show: true,
+            draftCount: -1,
+          },
+        });
+
+        return;
+      }
+
+      dispatch({
+        type: 'RESET_PUBLISH_CONFIRMATION',
+      });
+    }
+
     try {
       if (isEmpty(errors)) {
         flushSync(() => {
