@@ -79,6 +79,7 @@ const CMEditViewLocalePicker = ({
     if (isSingleType) {
       setQuery(defaultParams);
 
+      location.reload();
       return;
     }
 
@@ -92,11 +93,13 @@ const CMEditViewLocalePicker = ({
         pathname: `/content-manager/collection-types/${slug}/create`,
         search: stringify(defaultParams, { encode: false }),
       });
+      location.reload();
     } else {
       push({
         pathname: `/content-manager/collection-types/${slug}/${id}`,
         search: stringify(defaultParams, { encode: false }),
       });
+      location.reload();
     }
   };
 
