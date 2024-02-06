@@ -1,6 +1,7 @@
 import * as React from 'react';
 
-import { Box, Flex, KeyboardNavigable, Typography } from '@strapi/design-system';
+import { Magic } from '@strapi/icons';
+import { Box, Flex, IconButton, KeyboardNavigable, Typography } from '@strapi/design-system';
 import { useIntl } from 'react-intl';
 
 import { getTranslation } from '../../utils/translations';
@@ -11,15 +12,16 @@ interface ComponentPickerProps {
   dynamicComponentsByCategory?: Record<string, NonNullable<ComponentCategoryProps['components']>>;
   isOpen?: boolean;
   onClickAddComponent: (componentUid: string) => void;
+  onClickPastComponent?: () => void;
 }
 
 const ComponentPicker = ({
   dynamicComponentsByCategory = {},
   isOpen,
   onClickAddComponent,
+  onClickPastComponent,
 }: ComponentPickerProps) => {
   const { formatMessage } = useIntl();
-
   const [categoryToOpen, setCategoryToOpen] = React.useState('');
 
   React.useEffect(() => {
@@ -54,13 +56,25 @@ const ComponentPicker = ({
       borderColor="neutral150"
       hasRadius
     >
-      <Flex justifyContent="center">
+      <Flex justifyContent="space-between" alignItems="center">
         <Typography fontWeight="bold" textColor="neutral600">
           {formatMessage({
             id: getTranslation('components.DynamicZone.ComponentPicker-label'),
             defaultMessage: 'Pick one component',
           })}
         </Typography>
+        <IconButton
+          noBorder
+          label={formatMessage(
+            {
+              id: getTranslation('components.DynamicZone.past-label'),
+              defaultMessage: 'Past component',
+            }
+          )}
+          onClick={onClickPastComponent}
+        >
+          <Magic />
+        </IconButton>
       </Flex>
       <Box paddingTop={2}>
         <KeyboardNavigable attributeName="data-strapi-accordion-toggle">
