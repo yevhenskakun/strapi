@@ -141,6 +141,10 @@ const DynamicZone = ({ name, labelAction, fieldSchema, metadatas }: DynamicZoneP
         throw new Error('Invalid Data');
       }
 
+      if (component.origin !== location.origin) {
+        throw new Error('Wrong Env');
+      }
+
       const componentLayoutData = getComponentLayout(component.componentUid);
 
       if (!componentLayoutData.uid) {

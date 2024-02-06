@@ -126,6 +126,7 @@ const DynamicComponent = ({
     const componentValue = fpGet(`${name}.${index}`, modifiedData) ?? null;
 
     const value = JSON.stringify({
+      origin: location.origin,
       locale: modifiedData.locale,
       componentUid,
       componentId: componentValue.id,
