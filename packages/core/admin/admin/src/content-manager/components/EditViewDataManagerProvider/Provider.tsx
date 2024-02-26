@@ -476,6 +476,8 @@ const EditViewDataManagerProvider = ({
           }
 
           setIsSaving(false);
+        } else {
+          toggleNotification({ type: 'warning', message: `Please fix invalid value for: ${Object.keys(errors).join(", ")}` });
         }
       } catch (err) {
         setIsSaving(false);
