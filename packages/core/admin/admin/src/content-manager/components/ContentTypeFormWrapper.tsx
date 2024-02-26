@@ -437,6 +437,10 @@ const ContentTypeFormWrapper = ({
         displayErrors(err);
       }
 
+      if ((err as any)?.response?.data?.error) {
+        displayErrors((err as any)?.response?.data?.error);
+      }
+
       dispatch(setStatus('resolved'));
 
       return Promise.reject(err);
@@ -490,6 +494,10 @@ const ContentTypeFormWrapper = ({
           displayErrors(err);
         }
 
+        if ((err as any)?.response?.data?.error) {
+          displayErrors((err as any)?.response?.data?.error);
+        }
+
         dispatch(setStatus('resolved'));
 
         return Promise.reject(err);
@@ -536,6 +544,10 @@ const ContentTypeFormWrapper = ({
 
       if (err instanceof AxiosError) {
         displayErrors(err);
+      }
+
+      if ((err as any)?.response?.data?.error) {
+        displayErrors((err as any)?.response?.data?.error);
       }
 
       return Promise.reject(err);
