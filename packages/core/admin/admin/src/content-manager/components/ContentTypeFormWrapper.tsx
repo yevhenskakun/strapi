@@ -349,6 +349,10 @@ const ContentTypeFormWrapper = ({
           displayErrors(err);
         }
 
+        if ((err as any)?.response?.data?.error) {
+          displayErrors((err as any)?.response?.data?.error);
+        }
+
         trackUsage('didNotCreateEntry', { error: err, ...trackerProperty });
         dispatch(setStatus('resolved'));
 
