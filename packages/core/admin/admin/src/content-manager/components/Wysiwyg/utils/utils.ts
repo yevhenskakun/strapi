@@ -18,6 +18,9 @@ export const replaceText = (markdownName: string, textToChange: string) => {
     case 'Underline':
       editedText = `<u>${textToChange}</u>`;
       break;
+    case 'Sub2':
+      editedText = `₂`;
+      break;
     case 'Code':
       editedText = `\`\`\`\n${textToChange}\n\`\`\``;
       break;
@@ -59,6 +62,10 @@ export const insertText = (markdownName: string) => {
     case 'Underline':
       editedText = `<u>${markdownName}</u>`;
       selection.end = 4;
+      break;
+    case 'Sub2':
+      editedText = `₂`;
+      selection.end = 0;
       break;
     case 'Code':
       editedText = `\`\`\`\n${markdownName}\n\`\`\``;
