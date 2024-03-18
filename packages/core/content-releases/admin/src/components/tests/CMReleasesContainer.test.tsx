@@ -1,6 +1,6 @@
 import { useCMEditViewDataManager } from '@strapi/helper-plugin';
 import { screen, within } from '@testing-library/react';
-import { render, server } from '@tests/utils';
+import { render, server, waitFor } from '@tests/utils';
 import { rest } from 'msw';
 
 import { CMReleasesContainer } from '../CMReleasesContainer';
@@ -11,14 +11,9 @@ jest.mock('@strapi/helper-plugin', () => ({
   CheckPermissions: ({ children }: { children: JSX.Element }) => <div>{children}</div>,
   useCMEditViewDataManager: jest.fn().mockReturnValue({
     isCreatingEntry: false,
-    allLayoutData: {
-      contentType: {
-        uid: 'api::article.article',
-        options: {
-          draftAndPublish: true,
-        },
-      },
-    },
+    hasDraftAndPublish: true,
+    initialData: { id: 1 },
+    slug: 'api::article.article',
   }),
 }));
 
@@ -28,42 +23,60 @@ jest.mock('react-router-dom', () => ({
 }));
 
 describe('CMReleasesContainer', () => {
-  it('should not render the container when creating an entry', () => {
+  beforeEach(() => {
     // @ts-expect-error - Ignore error
-    useCMEditViewDataManager.mockReturnValueOnce({
+    useCMEditViewDataManager.mockReturnValue({
+      isCreatingEntry: false,
+      hasDraftAndPublish: true,
+      initialData: { id: 1 },
+      slug: 'api::article.article',
+    });
+  });
+
+  beforeAll(() => {
+    window.strapi.future = {
+      isEnabled: () => true,
+    };
+  });
+
+  afterAll(() => {
+    window.strapi.future = {
+      isEnabled: () => false,
+    };
+  });
+
+  it('should not render the container when creating an entry', async () => {
+    // @ts-expect-error - Ignore error
+    useCMEditViewDataManager.mockReturnValue({
       isCreatingEntry: true,
-      allLayoutData: {
-        contentType: {
-          options: {
-            draftAndPublish: true,
-          },
-        },
-      },
+      hasDraftAndPublish: true,
+      initialData: { id: 1 },
+      slug: 'api::article.article',
     });
 
     render(<CMReleasesContainer />);
 
-    const informationBox = screen.queryByRole('complementary', { name: 'Releases' });
-    expect(informationBox).not.toBeInTheDocument();
+    await waitFor(() => {
+      const informationBox = screen.queryByRole('complementary', { name: 'Releases' });
+      expect(informationBox).not.toBeInTheDocument();
+    });
   });
 
   it('should not render the container without draft and publish enabled', async () => {
     // @ts-expect-error - Ignore error
-    useCMEditViewDataManager.mockReturnValueOnce({
-      isCreatingEntry: false,
-      allLayoutData: {
-        contentType: {
-          options: {
-            draftAndPublish: false,
-          },
-        },
-      },
+    useCMEditViewDataManager.mockReturnValue({
+      isCreatingEntry: true,
+      hasDraftAndPublish: false,
+      initialData: { id: 1 },
+      slug: 'api::article.article',
     });
 
     render(<CMReleasesContainer />);
 
-    const informationBox = screen.queryByRole('complementary', { name: 'Releases' });
-    expect(informationBox).not.toBeInTheDocument();
+    await waitFor(() => {
+      const informationBox = screen.queryByRole('complementary', { name: 'Releases' });
+      expect(informationBox).not.toBeInTheDocument();
+    });
   });
 
   it('should render the container', async () => {
@@ -136,5 +149,32 @@ describe('CMReleasesContainer', () => {
     const release2 = await within(informationBox).findByText('release2');
     expect(release1).toBeInTheDocument();
     expect(release2).toBeInTheDocument();
+  });
+
+  it('should show the scheduled date for a release', async () => {
+    // Mock the response from the server
+    server.use(
+      rest.get('/content-releases', (req, res, ctx) => {
+        return res(
+          ctx.json({
+            data: [
+              {
+                name: 'release1',
+                id: '1',
+                action: { type: 'publish' },
+                scheduledAt: '2024-01-01T10:00:00.000Z',
+                timezone: 'Europe/Paris',
+              },
+            ],
+          })
+        );
+      })
+    );
+
+    render(<CMReleasesContainer />);
+
+    const informationBox = await screen.findByRole('complementary', { name: 'Releases' });
+    const release1 = await within(informationBox).findByText('01/01/2024 at 11:00 (UTC+01:00)');
+    expect(release1).toBeInTheDocument();
   });
 });

@@ -12,7 +12,34 @@ jest.mock('@strapi/helper-plugin', () => ({
   CheckPermissions: ({ children }: { children: JSX.Element }) => <div>{children}</div>,
 }));
 
+jest.mock('@strapi/admin/strapi-admin', () => ({
+  ...jest.requireActual('@strapi/admin/strapi-admin'),
+  useLicenseLimits: jest.fn().mockReturnValue({
+    isLoading: false,
+    isError: false,
+    license: {
+      enforcementUserCount: 10,
+      licenseLimitStatus: '',
+      permittedSeats: 3,
+      isHostedOnStrapiCloud: false,
+    },
+    getFeature: jest.fn().mockReturnValue({ maximumReleases: 3 }),
+  }),
+}));
+
 describe('Releases home page', () => {
+  beforeAll(() => {
+    window.strapi.future = {
+      isEnabled: () => true,
+    };
+  });
+
+  afterAll(() => {
+    window.strapi.future = {
+      isEnabled: () => false,
+    };
+  });
+
   it('renders the tab content correctly when there are no releases', async () => {
     server.use(
       rest.get('/content-releases', (req, res, ctx) =>
@@ -43,8 +70,8 @@ describe('Releases home page', () => {
 
     const { user } = render(<ReleasesPage />);
 
-    const releaseSubtitle = await screen.findByText('17 releases');
-    expect(releaseSubtitle).toBeInTheDocument();
+    const pendingTab = await screen.findByText('Pending (17)');
+    expect(pendingTab).toBeInTheDocument();
 
     const firstEntry = screen.getByRole('heading', { level: 3, name: 'entry 1' });
     expect(firstEntry).toBeInTheDocument();
@@ -54,5 +81,11 @@ describe('Releases home page', () => {
 
     const lastEntry = screen.getByRole('heading', { level: 3, name: 'entry 17' });
     expect(lastEntry).toBeInTheDocument();
+
+    // Check if you reached the maximum number of releases for license
+    const newReleaseButton = screen.queryByRole('button', { name: /new release/i });
+    expect(newReleaseButton).toBeDisabled();
+    const limitReachedMessage = screen.getByText(/you have reached the 3 pending releases limit/i);
+    expect(limitReachedMessage).toBeInTheDocument();
   });
 });
