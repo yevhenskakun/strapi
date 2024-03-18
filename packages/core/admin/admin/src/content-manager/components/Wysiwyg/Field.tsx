@@ -74,7 +74,6 @@ const Wysiwyg = React.forwardRef<EditorApi, WysiwygProps>(
         }
         case 'Bold':
         case 'Italic':
-        case 'Sub2':
         case 'Underline': {
           markdownHandler(currentEditorRef, value);
           break;

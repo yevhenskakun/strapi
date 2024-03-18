@@ -7,7 +7,6 @@ import {
   SingleSelectOption,
   Popover,
   SingleSelect,
-  Typography,
 } from '@strapi/design-system';
 import {
   Bold,
@@ -212,14 +211,6 @@ const WysiwygNav = ({
                   label="Quote"
                   name="Quote"
                   icon={<Quote />}
-                />
-              </IconButtonGroup>
-              <IconButtonGroup>
-                <CustomIconButton
-                  onClick={() => onActionClick('Sub2', editorRef, handleTogglePopover)}
-                  label="Sub2"
-                  name="Sub2"
-                  icon={<Typography>₂</Typography>}
                 />
               </IconButtonGroup>
             </Flex>
