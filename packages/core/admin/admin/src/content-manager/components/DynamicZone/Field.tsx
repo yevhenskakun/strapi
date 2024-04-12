@@ -122,9 +122,11 @@ const DynamicZone = ({ name, labelAction, fieldSchema, metadatas }: DynamicZoneP
 
       onChange?.({ target: { name: `${name}.${pastValue.index}`, value: pastValue.value } as any });
 
-      if (pastValue.value['__relationConnect']) {
-        pastValue.value['__relationConnect'].forEach((el: any) => relationConnect?.(el));
-      }
+      setTimeout(() => {
+        if (pastValue.value['__relationConnect']) {
+          pastValue.value['__relationConnect'].forEach((el: any) => relationConnect?.(el));
+        }
+      });
     }
   }, [name, setPastValue, pastValue, modifiedData]);
 

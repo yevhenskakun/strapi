@@ -105,7 +105,7 @@ const CMEditViewCopyLocale = ({
     try {
       const urlParams = new URLSearchParams(window.location.search);
       const i18nLocale = urlParams.get('plugins[i18n][locale]');
-      const requestURL = `/content-manager/collection-types/${slug}/${value}?locale=${i18nLocale}&translate=${translate}`;
+      const requestURL = `/content-manager/collection-types/${slug}/${value}?locale=${i18nLocale}&translate=${translate ?? false}`;
       const { data: response } = await get(requestURL);
 
       // @ts-expect-error – there will always be allLayoutData.contentType. TODO: fix in V5 helper-plugin.
@@ -122,9 +122,11 @@ const CMEditViewCopyLocale = ({
         setModifiedDataOnly: true,
       });
 
-      if (response['__relationConnect']) {
-        response['__relationConnect'].forEach((el: any) => relationConnect?.(el));
-      }
+      setTimeout(() => {
+        if (response['__relationConnect']) {
+          response['__relationConnect'].forEach((el: any) => relationConnect?.(el));
+        }
+      });
 
       toggleNotification({
         type: 'success',
