@@ -138,7 +138,21 @@ export const PreviewBox = ({
   };
 
   const handleCropStart = () => {
-    setHasCropIntent(true);
+    const urlObj = new URL(window.location);
+    const path = `${urlObj.origin}/api/proxy-media?id=${asset.id}`;
+
+    fetch(path)
+      .then((res) => res.json())
+      .catch((err) => {
+        console.error(err);
+        return null;
+      })
+      .then((res) => {
+        if (res?.url) {
+          setAssetUrl(res.url);
+        }
+      })
+      .finally(() => setTimeout(() => setHasCropIntent(true), 100));
   };
 
   return (
