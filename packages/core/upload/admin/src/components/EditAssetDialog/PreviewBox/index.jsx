@@ -68,7 +68,7 @@ export const PreviewBox = ({
   const [thumbnailUrl, setThumbnailUrl] = useState(createAssetUrl(asset, true));
   const { formatMessage } = useIntl();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const { crop, produceFile, stopCropping, isCropping, isCropperReady, width, height } =
+  const { crop, onScale, produceFile, stopCropping, isCropping, isCropperReady, width, height } =
     useCropImg();
   const { editAsset, error, isLoading, progress, cancel } = useEditAsset();
 
@@ -134,7 +134,7 @@ export const PreviewBox = ({
     }
 
     setAssetUrl(optimizedCachingImage);
-    setThumbnailUrl(`${optimizedCachingThumbnailImage}#${Date.now()}`);
+    setThumbnailUrl(`${optimizedCachingThumbnailImage}?c=${Date.now()}`);
     setHasCropIntent(false);
   };
 
@@ -182,6 +182,7 @@ export const PreviewBox = ({
             onValidate={handleCropping}
             onDuplicate={asset.isLocal ? undefined : handleDuplication}
             onCancel={handleCropCancel}
+            onScale={onScale}
           />
         )}
 
