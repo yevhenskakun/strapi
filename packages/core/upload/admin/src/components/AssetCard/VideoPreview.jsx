@@ -37,8 +37,8 @@ export const VideoPreview = ({ url, mime, onLoadDuration, alt, ...props }) => {
         muted
         onLoadedData={handleThumbnailVisibility}
         src={url}
-        crossOrigin="anonymous"
         onTimeUpdate={handleTimeUpdate}
+        controls
       >
         <source type={mime} />
       </video>
