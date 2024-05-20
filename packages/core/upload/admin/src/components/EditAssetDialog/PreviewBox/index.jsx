@@ -29,23 +29,11 @@ import { CroppingActions } from './CroppingActions';
 
 import 'cropperjs/dist/cropper.css';
 
-const downloadFileLocal = async (id, directUrl, fileName) => {
+const downloadFileLocal = async (id, fileName) => {
   const urlObj = new URL(window.location);
   const path = `${urlObj.origin}/api/proxy-media?id=${id}`;
 
-  fetch(path)
-    .then((res) => res.json())
-    .catch((err) => {
-      console.error(err);
-      return null;
-    })
-    .then((res) => {
-      if (res?.url) {
-        downloadFile(res.url, fileName);
-      } else {
-        downloadFile(directUrl, fileName);
-      }
-    });
+  downloadFile(path, fileName);
 };
 
 export const PreviewBox = ({
@@ -160,18 +148,8 @@ export const PreviewBox = ({
     const urlObj = new URL(window.location);
     const path = `${urlObj.origin}/api/proxy-media?id=${asset.id}`;
 
-    fetch(path)
-      .then((res) => res.json())
-      .catch((err) => {
-        console.error(err);
-        return null;
-      })
-      .then((res) => {
-        if (res?.url) {
-          setAssetUrl(res.url);
-        }
-      })
-      .finally(() => setTimeout(() => setHasCropIntent(true), 100));
+    setAssetUrl(path);
+    setTimeout(() => setHasCropIntent(true), 100);
   };
 
   return (
@@ -206,7 +184,7 @@ export const PreviewBox = ({
                   defaultMessage: 'Download',
                 })}
                 icon={<DownloadIcon />}
-                onClick={() => downloadFileLocal(asset.id, assetUrl, asset.name)}
+                onClick={() => downloadFileLocal(asset.id, asset.name)}
               />
             )}
 
