@@ -29,6 +29,25 @@ import { CroppingActions } from './CroppingActions';
 
 import 'cropperjs/dist/cropper.css';
 
+const downloadFileLocal = async (id, directUrl, fileName) => {
+  const urlObj = new URL(window.location);
+  const path = `${urlObj.origin}/api/proxy-media?id=${id}`;
+
+  fetch(path)
+    .then((res) => res.json())
+    .catch((err) => {
+      console.error(err);
+      return null;
+    })
+    .then((res) => {
+      if (res?.url) {
+        downloadFile(res.url, fileName);
+      } else {
+        downloadFile(directUrl, fileName);
+      }
+    });
+};
+
 export const PreviewBox = ({
   asset,
   canUpdate,
@@ -115,7 +134,7 @@ export const PreviewBox = ({
     }
 
     setAssetUrl(optimizedCachingImage);
-    setThumbnailUrl(optimizedCachingThumbnailImage);
+    setThumbnailUrl(`${optimizedCachingThumbnailImage}#${Date.now()}`);
     setHasCropIntent(false);
   };
 
@@ -186,7 +205,7 @@ export const PreviewBox = ({
                   defaultMessage: 'Download',
                 })}
                 icon={<DownloadIcon />}
-                onClick={() => downloadFile(assetUrl, asset.name)}
+                onClick={() => downloadFileLocal(asset.id, assetUrl, asset.name)}
               />
             )}
 
@@ -225,7 +244,7 @@ export const PreviewBox = ({
             ref={previewRef}
             mime={asset.mime}
             name={asset.name}
-            url={hasCropIntent ? assetUrl : thumbnailUrl}
+            url={hasCropIntent ? assetUrl : `${thumbnailUrl}?n=${asset.updatedAt}`}
             onLoad={() => {
               if (asset.isLocal || hasCropIntent) {
                 setIsCropImageReady(true);
