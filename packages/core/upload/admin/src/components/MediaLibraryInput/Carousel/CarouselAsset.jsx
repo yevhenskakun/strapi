@@ -55,7 +55,7 @@ export const CarouselAsset = ({ asset }) => {
         as="img"
         maxHeight="100%"
         maxWidth="100%"
-        src={createAssetUrl(asset, true)}
+        src={`${createAssetUrl(asset, true)}?n=${asset?.updatedAt}`}
         alt={asset.alternativeText || asset.name}
       />
     );
