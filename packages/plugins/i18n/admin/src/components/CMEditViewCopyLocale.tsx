@@ -17,7 +17,7 @@ import {
   useFetchClient,
   useNotification,
 } from '@strapi/helper-plugin';
-import { Duplicate, ExclamationMarkCircle } from '@strapi/icons';
+import { Duplicate, ExclamationMarkCircle, Earth } from '@strapi/icons';
 import { useIntl } from 'react-intl';
 import styled from 'styled-components';
 
@@ -49,7 +49,7 @@ const CMEditViewCopyLocale = ({
   const toggleNotification = useNotification();
   const { formatMessage } = useIntl();
   const dispatch = useTypedDispatch();
-  const { allLayoutData, initialData, slug } = useCMEditViewDataManager();
+  const { allLayoutData, initialData, slug, relationConnect } = useCMEditViewDataManager();
   const { get } = useFetchClient();
 
   const options = React.useMemo(
@@ -94,7 +94,7 @@ const CMEditViewCopyLocale = ({
   /**
    * TODO: move this to an actual mutation
    */
-  const handleConfirmCopyLocale = async () => {
+  const handleConfirmCopyLocale = async (translate=false) => {
     if (!value) {
       handleToggle();
 
@@ -103,7 +103,10 @@ const CMEditViewCopyLocale = ({
 
     setIsLoading(true);
     try {
-      const { data: response } = await get(`/content-manager/collection-types/${slug}/${value}`);
+      const urlParams = new URLSearchParams(window.location.search);
+      const i18nLocale = urlParams.get('plugins[i18n][locale]');
+      const requestURL = `/content-manager/collection-types/${slug}/${value}?locale=${i18nLocale}&translate=${translate ?? false}`;
+      const { data: response } = await get(requestURL);
 
       // @ts-expect-error – there will always be allLayoutData.contentType. TODO: fix in V5 helper-plugin.
       const cleanedData = cleanData(response, allLayoutData, localizations);
@@ -117,6 +120,12 @@ const CMEditViewCopyLocale = ({
         type: 'ContentManager/CrudReducer/GET_DATA_SUCCEEDED',
         data: cleanedData,
         setModifiedDataOnly: true,
+      });
+
+      setTimeout(() => {
+        if (response['__relationConnect']) {
+          response['__relationConnect'].forEach((el: any) => relationConnect?.(el));
+        }
       });
 
       toggleNotification({
@@ -141,6 +150,8 @@ const CMEditViewCopyLocale = ({
       handleToggle();
     }
   };
+
+  const handleConfirmCopyLocaleTranslate = async () => handleConfirmCopyLocale(true);
 
   const handleToggle = () => {
     setIsOpen((prev) => !prev);
@@ -206,7 +217,7 @@ const CMEditViewCopyLocale = ({
               </Button>
             }
             endAction={
-              <Button variant="success" onClick={handleConfirmCopyLocale} loading={isLoading}>
+              <Button variant="success" onClick={handleConfirmCopyLocale as any} loading={isLoading}>
                 {formatMessage({
                   id: getTranslation('CMEditViewCopyLocale.submit-text'),
                   defaultMessage: 'Yes, fill in',
@@ -214,6 +225,11 @@ const CMEditViewCopyLocale = ({
               </Button>
             }
           />
+          <Box padding="0 16px 16px">
+            <Button variant="danger" fullWidth startIcon={<Earth />} onClick={handleConfirmCopyLocaleTranslate} loading={isLoading}>
+              Fill in and translate
+            </Button>
+          </Box>
         </Dialog>
       )}
     </>

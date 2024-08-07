@@ -19,7 +19,7 @@ export const ImageAssetCard = ({ height, width, thumbnail, size, alt, isUrlSigne
 
   return (
     <AssetCardBase {...props} subtitle={height && width && ` - ${width}✕${height}`} variant="Image">
-      <CardAsset src={thumbnailUrl} size={size} alt={alt} />
+      <CardAsset src={`${thumbnailUrl}?n=${props?.updatedAt}`} size={size} alt={alt} />
     </AssetCardBase>
   );
 };

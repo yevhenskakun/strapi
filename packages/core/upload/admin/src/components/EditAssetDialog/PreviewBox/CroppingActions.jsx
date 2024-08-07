@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { Flex, FocusTrap, IconButton, VisuallyHidden } from '@strapi/design-system';
 import { Menu } from '@strapi/design-system/v2';
-import { Check, Cross } from '@strapi/icons';
+import { Check, Cross, ChevronDown, ChevronLeft } from '@strapi/icons';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import styled from 'styled-components';
@@ -11,13 +11,36 @@ import getTrad from '../../../utils/getTrad';
 
 import { CroppingActionRow } from './components';
 
-export const CroppingActions = ({ onCancel, onValidate, onDuplicate }) => {
+export const CroppingActions = ({ onCancel, onScale, onValidate, onDuplicate }) => {
   const { formatMessage } = useIntl();
+
+  const [flipH, setFlipH] = useState(true);
+  const [flipV, setFlipV] = useState(true);
+
+  const onFlipH = () => {
+    onScale(flipV ? 1 : -1, flipH ? -1 : 1);
+    setFlipH((e) => !e);
+  };
+
+  const onFlipV = () => {
+    onScale(flipV ? -1 : 1, flipH ? 1 : -1);
+    setFlipV((e) => !e);
+  };
 
   return (
     <FocusTrap onEscape={onCancel}>
       <CroppingActionRow justifyContent="flex-end" paddingLeft={3} paddingRight={3}>
         <Flex gap={1}>
+          <IconButton
+            label="Flip vertical"
+            icon={<ChevronDown />}
+            onClick={onFlipH}
+          />
+          <IconButton
+            label="Flip horizontal"
+            icon={<ChevronLeft />}
+            onClick={onFlipV}
+          />
           <IconButton
             label={formatMessage({
               id: getTrad('control-card.stop-crop'),

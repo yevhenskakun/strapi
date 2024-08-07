@@ -30,15 +30,19 @@ export const useCropImg = () => {
         modal: true,
         initialAspectRatio: 16 / 9,
         movable: true,
-        zoomable: false,
+        zoomable: true,
+        scalable: true,
         cropBoxResizable: true,
         background: false,
+        rotatable: true,
         crop: handleResize,
       });
 
       setIsCropping(true);
     }
   };
+
+  const onScale = (x, y) => cropperRef.current?.scale(x, y);
 
   const stopCropping = () => {
     if (cropperRef.current) {
@@ -76,6 +80,7 @@ export const useCropImg = () => {
 
   return {
     crop,
+    onScale,
     produceFile,
     stopCropping,
     isCropping,

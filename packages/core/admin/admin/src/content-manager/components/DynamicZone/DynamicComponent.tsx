@@ -10,9 +10,10 @@ import {
   VisuallyHidden,
 } from '@strapi/design-system';
 import { Menu, MenuItem } from '@strapi/design-system/v2';
-import { useCMEditViewDataManager } from '@strapi/helper-plugin';
-import { Drag, More, Trash } from '@strapi/icons';
+import { useCMEditViewDataManager, useNotification } from '@strapi/helper-plugin';
+import { Drag, More, Trash, Code } from '@strapi/icons';
 import get from 'lodash/get';
+import { get as fpGet } from 'lodash/fp';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useIntl } from 'react-intl';
 import styled from 'styled-components';
@@ -56,8 +57,9 @@ const DynamicComponent = ({
 }: DynamicComponentProps) => {
   const [isOpen, setIsOpen] = React.useState(true);
   const { formatMessage } = useIntl();
+  const toggleNotification = useNotification();
   const { getComponentLayout } = useContentTypeLayout();
-  const { modifiedData } = useCMEditViewDataManager();
+  const { modifiedData, layout, initialData } = useCMEditViewDataManager();
   const { icon, friendlyName, mainValue } = React.useMemo(() => {
     const componentLayoutData = getComponentLayout(componentUid);
 
@@ -120,6 +122,33 @@ const DynamicComponent = ({
 
   const composedBoxRefs = composeRefs(boxRef, dropRef);
 
+  const onCopyComponentClick = () => {
+    const componentValue = fpGet(`${name}.${index}`, modifiedData) ?? null;
+
+    const value = JSON.stringify({
+      origin: location.origin,
+      locale: modifiedData.locale,
+      componentUid,
+      componentId: componentValue.id,
+      api: layout?.uid,
+      id: modifiedData.id ?? initialData.id,
+    }, null, 4);
+
+    navigator.clipboard.writeText(value).then(() => {
+      toggleNotification({
+        type: 'success',
+        message: 'Component copied',
+      });
+    }).catch((err) => {
+      console.log(err);
+
+      toggleNotification({
+        type: 'warning',
+        message: 'Could not copy a component',
+      });
+    });
+  };
+
   const accordionActions = !isFieldAllowed ? null : (
     <ActionsFlex gap={0}>
       <IconButtonCustom
@@ -134,6 +163,19 @@ const DynamicComponent = ({
         onClick={onRemoveComponentClick}
       >
         <Trash />
+      </IconButtonCustom>
+      <IconButtonCustom
+        noBorder
+        label={formatMessage(
+          {
+            id: getTranslation('components.DynamicZone.copy-label'),
+            defaultMessage: 'Copy {name}',
+          },
+          { name: friendlyName }
+        )}
+        onClick={onCopyComponentClick}
+      >
+        <Code />
       </IconButtonCustom>
       <IconButton
         forwardedAs="div"
@@ -248,8 +290,8 @@ const DynamicComponent = ({
 };
 
 const ActionsFlex = styled(Flex)`
-  /* 
-    we need to remove the background from the button but we can't 
+  /*
+    we need to remove the background from the button but we can't
     wrap the element in styled because it breaks the forwardedAs which
     we need for drag handler to work on firefox
   */

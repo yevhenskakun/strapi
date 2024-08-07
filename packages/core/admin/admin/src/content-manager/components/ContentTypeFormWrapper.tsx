@@ -333,6 +333,7 @@ const ContentTypeFormWrapper = ({
         );
 
         trackUsage('didCreateEntry', trackerProperty);
+
         toggleNotification({
           type: 'success',
           message: { id: getTranslation('success.record.save') },
@@ -343,7 +344,7 @@ const ContentTypeFormWrapper = ({
         // TODO: need to find a better place, or a better abstraction
         queryClient.invalidateQueries(['relation']);
 
-        dispatch(submitSucceeded(cleanReceivedData(data)));
+        // dispatch(submitSucceeded(cleanReceivedData(data)));
 
         // Enable navigation and remove loaders
         dispatch(setStatus('resolved'));
@@ -353,10 +354,15 @@ const ContentTypeFormWrapper = ({
           replace(`/content-manager/${collectionType}/${slug}/${data.id}${rawQuery}`);
         }
 
+        location.reload();
         return Promise.resolve(data);
       } catch (err) {
         if (err instanceof AxiosError) {
           displayErrors(err);
+        }
+
+        if ((err as any)?.response?.data?.error) {
+          displayErrors((err as any)?.response?.data?.error);
         }
 
         trackUsage('didNotCreateEntry', { error: err, ...trackerProperty });
@@ -431,8 +437,9 @@ const ContentTypeFormWrapper = ({
       );
 
       trackUsage('didPublishEntry');
+      location.reload();
 
-      dispatch(submitSucceeded(cleanReceivedData(data)));
+      // dispatch(submitSucceeded(cleanReceivedData(data)));
       dispatch(setStatus('resolved'));
 
       toggleNotification({
@@ -444,6 +451,10 @@ const ContentTypeFormWrapper = ({
     } catch (err) {
       if (err instanceof AxiosError) {
         displayErrors(err);
+      }
+
+      if ((err as any)?.response?.data?.error) {
+        displayErrors((err as any)?.response?.data?.error);
       }
 
       dispatch(setStatus('resolved'));
@@ -500,6 +511,10 @@ const ContentTypeFormWrapper = ({
           displayErrors(err);
         }
 
+        if ((err as any)?.response?.data?.error) {
+          displayErrors((err as any)?.response?.data?.error);
+        }
+
         dispatch(setStatus('resolved'));
 
         return Promise.reject(err);
@@ -537,18 +552,24 @@ const ContentTypeFormWrapper = ({
       );
 
       trackUsage('didUnpublishEntry');
+      location.reload();
+
       toggleNotification({
         type: 'success',
         message: { id: getTranslation('success.record.unpublish') },
       });
 
-      dispatch(submitSucceeded(cleanReceivedData(data)));
+      // dispatch(submitSucceeded(cleanReceivedData(data)));
       dispatch(setStatus('resolved'));
     } catch (err) {
       dispatch(setStatus('resolved'));
 
       if (err instanceof AxiosError) {
         displayErrors(err);
+      }
+
+      if ((err as any)?.response?.data?.error) {
+        displayErrors((err as any)?.response?.data?.error);
       }
 
       return Promise.reject(err);

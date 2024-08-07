@@ -598,7 +598,7 @@ const reducer = (state: EditViewDataManagerState, action: Action) =>
         break;
       }
       case 'RESET_PUBLISH_CONFIRMATION': {
-        draftState.publishConfirmation = { ...state.publishConfirmation, show: false };
+        draftState.publishConfirmation = { ...state.publishConfirmation, draftCount: 0, show: false };
         break;
       }
       default:

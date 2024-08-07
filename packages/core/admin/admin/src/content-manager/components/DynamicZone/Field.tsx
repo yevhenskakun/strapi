@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { Box, Flex, VisuallyHidden } from '@strapi/design-system';
-import { NotAllowedInput, useCMEditViewDataManager, useNotification } from '@strapi/helper-plugin';
+import { NotAllowedInput, useCMEditViewDataManager, useFetchClient, useNotification } from '@strapi/helper-plugin';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 
@@ -28,6 +28,8 @@ const DynamicZone = ({ name, labelAction, fieldSchema, metadatas }: DynamicZoneP
 
   const [addComponentIsOpen, setAddComponentIsOpen] = React.useState(false);
   const [liveText, setLiveText] = React.useState('');
+  const [pastValue, setPastValue] = React.useState<any>(null);
+  const { get } = useFetchClient();
 
   const {
     addComponentToDynamicZone,
@@ -39,6 +41,8 @@ const DynamicZone = ({ name, labelAction, fieldSchema, metadatas }: DynamicZoneP
     removeComponentFromDynamicZone,
     readActionAllowedFields,
     updateActionAllowedFields,
+    onChange,
+    relationConnect,
   } = useCMEditViewDataManager();
 
   const dynamicDisplayedComponents = React.useMemo(
@@ -108,6 +112,70 @@ const DynamicZone = ({ name, labelAction, fieldSchema, metadatas }: DynamicZoneP
      * of the former list. Therefore it's schema is inaccessible leading to a crash.
      */
     addComponentToDynamicZone?.(name, componentLayoutData, allComponents, hasError, position);
+  };
+
+  React.useEffect(() => {
+    const list = ((modifiedData?.[name] as []) ?? []);
+
+    if (pastValue && list[pastValue.index]?.['__component'] === pastValue.value.__component) {
+      setPastValue(null);
+
+      onChange?.({ target: { name: `${name}.${pastValue.index}`, value: pastValue.value } as any });
+
+      setTimeout(() => {
+        if (pastValue.value['__relationConnect']) {
+          pastValue.value['__relationConnect'].forEach((el: any) => relationConnect?.(el));
+        }
+      });
+    }
+  }, [name, setPastValue, pastValue, modifiedData]);
+
+  const handlePastComponent = async () => {
+    try {
+      const value = await navigator.clipboard.readText();
+      const component = JSON.parse(value);
+
+      if (!component.locale || component.locale !== modifiedData.locale) {
+        throw new Error('Invalid locale');
+      }
+
+      if (!component.componentUid || !component.api || !component.id || !component.componentId) {
+        throw new Error('Invalid Data');
+      }
+
+      if (component.origin !== location.origin) {
+        throw new Error('Wrong Env');
+      }
+
+      const componentLayoutData = getComponentLayout(component.componentUid);
+
+      if (!componentLayoutData.uid) {
+        throw new Error('Not Found');
+      }
+
+      setAddComponentIsOpen(false);
+
+      toggleNotification({
+        type: 'info',
+        message: 'Please wait while we process the component',
+      });
+
+      const requestURL = `/content-manager/collection-types/${component.api}/${component.id}?locale=${component.locale}&name=${name}&copyUid=${component.componentUid}&copyId=${component.componentId}`;
+      const { data: response } = await get(requestURL);
+
+      addComponentToDynamicZone?.(name, componentLayoutData, allComponents, hasError);
+
+      setPastValue({
+        value: response,
+        index: modifiedData[name].length
+      });
+    } catch (err) {
+      console.log(err);
+      toggleNotification({
+        type: 'warning',
+        message: `${err}`,
+      });
+    }
   };
 
   const handleClickOpenPicker = () => {
@@ -291,6 +359,7 @@ const DynamicZone = ({ name, labelAction, fieldSchema, metadatas }: DynamicZoneP
         dynamicComponentsByCategory={dynamicComponentsByCategory}
         isOpen={addComponentIsOpen}
         onClickAddComponent={handleAddComponent}
+        onClickPastComponent={handlePastComponent}
       />
     </Flex>
   );

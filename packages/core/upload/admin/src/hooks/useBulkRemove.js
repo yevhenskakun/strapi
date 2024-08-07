@@ -50,7 +50,8 @@ export const useBulkRemove = () => {
       });
     },
     onError(error) {
-      toggleNotification({ type: 'warning', message: error.message });
+      const message = error.response?.data?.error?.message || error.message;
+      toggleNotification({ type: 'warning', message });
     },
   });
 

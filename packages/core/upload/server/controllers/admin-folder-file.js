@@ -9,6 +9,7 @@ const {
 } = require('./validation/admin/folder-file');
 
 module.exports = {
+  validateDeleteManyFoldersFiles: validateDeleteManyFoldersFiles,
   async deleteMany(ctx) {
     const { body } = ctx.request;
     const {

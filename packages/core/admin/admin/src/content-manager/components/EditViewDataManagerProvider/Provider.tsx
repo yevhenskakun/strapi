@@ -476,6 +476,8 @@ const EditViewDataManagerProvider = ({
           }
 
           setIsSaving(false);
+        } else {
+          toggleNotification({ type: 'warning', message: `Please fix invalid value for: ${Object.keys(errors).join(", ")}` });
         }
       } catch (err) {
         setIsSaving(false);
@@ -539,6 +541,27 @@ const EditViewDataManagerProvider = ({
       if (err instanceof ValidationError) {
         errors = getYupInnerErrors(err);
       }
+    }
+
+    if (allLayoutData?.contentType?.uid === 'api::article.article' && !modifiedData?.seo?.canonicalURL) {
+      const hasNZZ = true; // JSON.stringify(modifiedData.content).toLowerCase().includes('nzz.ch');
+
+      if (publishConfirmation.draftCount !== -1 && hasNZZ) {
+        // show nzz alert
+        dispatch({
+          type: 'SET_PUBLISH_CONFIRMATION',
+          publishConfirmation: {
+            show: true,
+            draftCount: -1,
+          },
+        });
+
+        return;
+      }
+
+      dispatch({
+        type: 'RESET_PUBLISH_CONFIRMATION',
+      });
     }
 
     try {
