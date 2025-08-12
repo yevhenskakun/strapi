@@ -12,7 +12,7 @@ import { AssetType } from '../../../constants';
 import { useCropImg } from '../../../hooks/useCropImg';
 import { useEditAsset } from '../../../hooks/useEditAsset';
 import { useUpload } from '../../../hooks/useUpload';
-import { createAssetUrl, getTrad, downloadFile } from '../../../utils';
+import { createAssetUrl, getTrad, downloadFile, downloadLocalFile } from '../../../utils';
 import { CopyLinkButton } from '../../CopyLinkButton/CopyLinkButton';
 import { UploadProgress } from '../../UploadProgress/UploadProgress';
 import { RemoveAssetDialog } from '../RemoveAssetDialog';
@@ -69,7 +69,7 @@ export const PreviewBox = ({
   const [thumbnailUrl, setThumbnailUrl] = React.useState(createAssetUrl(asset, true));
   const { formatMessage } = useIntl();
   const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
-  const { crop, produceFile, stopCropping, isCropping, isCropperReady, width, height } =
+  const { crop, produceFile, onScale, stopCropping, isCropping, isCropperReady, width, height } =
     useCropImg();
   const { editAsset, error, isLoading, progress, cancel } = useEditAsset();
 
@@ -135,7 +135,7 @@ export const PreviewBox = ({
     }
 
     setAssetUrl(optimizedCachingImage);
-    setThumbnailUrl(optimizedCachingThumbnailImage);
+    setThumbnailUrl(`${optimizedCachingThumbnailImage}?c=${Date.now()}`);
     setHasCropIntent(false);
   };
 
@@ -162,7 +162,11 @@ export const PreviewBox = ({
   };
 
   const handleCropStart = () => {
-    setHasCropIntent(true);
+    const urlObj = new URL(window.location as any);
+    const path = `${urlObj.origin}/api/proxy-media?id=${asset.id}`;
+
+    setAssetUrl(path);
+    setTimeout(() => setHasCropIntent(true), 100);
   };
 
   return (
@@ -174,6 +178,7 @@ export const PreviewBox = ({
             onValidate={handleCropping}
             onDuplicate={asset.isLocal ? undefined : handleDuplication}
             onCancel={handleCropCancel}
+            onScale={onScale}
           />
         )}
 
@@ -197,7 +202,7 @@ export const PreviewBox = ({
                   id: getTrad('control-card.download'),
                   defaultMessage: 'Download',
                 })}
-                onClick={() => downloadFile(assetUrl!, asset.name)}
+                onClick={() => downloadLocalFile(asset.id, asset.name)}
               >
                 <DownloadIcon />
               </IconButton>
@@ -239,7 +244,7 @@ export const PreviewBox = ({
             ref={previewRef}
             mime={asset.mime!}
             name={asset.name}
-            url={hasCropIntent ? assetUrl! : thumbnailUrl!}
+            url={hasCropIntent ? assetUrl! : `${thumbnailUrl}?n=${asset.updatedAt}`}
             onLoad={() => {
               if (asset.isLocal || hasCropIntent) {
                 setIsCropImageReady(true);

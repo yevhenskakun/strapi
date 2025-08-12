@@ -36,7 +36,7 @@ export const ImageAssetCard = ({
 
   return (
     <AssetCardBase {...props} selected={selected} subtitle={subtitle} variant="Image">
-      <CardAsset src={thumbnailUrl} size={size} alt={alt} />
+      <CardAsset src={`${thumbnailUrl}?n=${props?.updatedAt}`} size={size} alt={alt} />
     </AssetCardBase>
   );
 };
